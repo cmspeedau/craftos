@@ -1,61 +1,44 @@
 # CraftOS
 
-A custom Linux OS built on [Buildroot](https://buildroot.org), with a native Rust package manager (`mpkg`), an OS SDK (`mpkg-sdk`), a Wayland desktop, and an integrated app platform.
+A Linux distribution built on Buildroot with a Rust userland, its own package manager (`mpkg`), a native Wayland desktop, and an SDK for first- and third-party apps.
 
 ## Vision
 
-CraftOS is a from-scratch, package-managed desktop Linux distribution:
-
-- **Buildroot base** — deterministic, reproducible OS builds; every package output becomes an `.mpk` artifact
-- **mpkg** — transactional, signed package manager written in Rust (the only way software — OS or apps — gets installed)
-- **mpkg-sdk** — everything a third party needs to build, package, and deploy CraftOS apps
-- **Wayland-native desktop** — branded compositor/shell on wlroots, launcher driven by `.desktop` files
-- **App platform** — software store as the single front-end for apps *and* OS updates
+CraftOS treats the OS as a set of packages managed by one tool: everything from the kernel to the app store is an `.mpk` package, updated through signed channels, transactionally and with rollback. First-party apps are Rust and target Wayland natively; third-party apps run through a packaging compatibility layer.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│              App Store (GUI)                │
-├──────────────────────────┬──────────────────┤
-│      Wayland Desktop     │  myos-updated    │
-│  (wlroots shell, panel,  │  (update daemon) │
-│   launcher, XWayland)    │                  │
-├──────────────────────────┴──────────────────┤
-│                    mpkg                     │  ← package transactions,
-├─────────────────────────────────────────────┤     channels, rollback
-│              Buildroot (glibc)              │
-├─────────────────────────────────────────────┤
-│               Linux kernel                  │
-└─────────────────────────────────────────────┘
-```
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture: layers, data flow, runtime layout, and trade-offs.
 
-## Key components
-
-| Component | Language | Repo/module | Status |
-|---|---|---|---|
-| OS build system | Make/Buildroot | `myos-build` | Phase 0 |
-| Package manager (core) | Rust | `mpkg-core` | Phase 1 |
-| Package manager (CLI) | Rust | `mpkg` | Phase 1 |
-| SDK | Rust + scripts | `mpkg-sdk` | Phase 2 |
-| Desktop (compositor/shell) | Rust (wlroots) | `craftos-shell` | Phase 3 |
-| App store / updater | Rust | `craftos-store` | Phase 4 |
-| Installer | Rust | `craftos-installer` | Phase 5 |
+```
+Applications (first-party .mpk / third-party wrapped)
+        │
+Desktop Layer (compositor, shell, app store)
+        │
+System Services (mpkg, myos-updated, installer, firstboot)
+        │
+OS Core (kernel, glibc, systemd) — packaged via Buildroot
+        │
+Build & Distribution (myos-build, .mpk repos, channels, CI)
+```
 
 ## Documentation
 
-- [Roadmap](docs/ROADMAP.md) — phases, milestones, exit criteria
-- [mpkg design](docs/MPKG.md) — packages, repos, transactions, channels, rollback
-- [SDK design](docs/SDK.md) — toolchain, sysroot, app scaffolding, deploy
-- [Desktop & GUI stack](docs/DESKTOP.md) — Wayland, shell, app compatibility
-- [Updates & channels](docs/UPDATES.md) — package-based update flow, atomicity, channels
-- [Installer design](docs/INSTALLER.md) — disk layout, install flow, first boot
-- [Contributing](CONTRIBUTING.md)
+| Doc | Contents |
+|---|---|
+| [Architecture](docs/ARCHITECTURE.md) | Layers, components, data flow, design decisions |
+| [Roadmap](docs/ROADMAP.md) | Phases 0–5, exit criteria, dependency map |
+| [mpkg](docs/MPKG.md) | Package format, transactions, rollback, channels |
+| [SDK](docs/SDK.md) | Toolchain export, `mpkg-sdk` workflow, scaffolding |
+| [Desktop](docs/DESKTOP.md) | Wayland stack, app contract, XWayland policy |
+| [Updates](docs/UPDATES.md) | Package-based updates, atomicity, channels, CI gating |
+| [Installer](docs/INSTALLER.md) | Package-seeded install, disk layout, first boot |
+| [Contributing](CONTRIBUTING.md) | Repo layout, conventions |
 
 ## Status
 
-🚧 Pre-Phase 0 — design and scaffolding. See the [roadmap](docs/ROADMAP.md).
+Early phase: architecture and documentation are defined; `mpkg` core work is starting (Phase 1). See the [roadmap](docs/ROADMAP.md) for what's next.
 
 ## License
 
-TBD (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+TBD — see [CONTRIBUTING.md](CONTRIBUTING.md).
