@@ -1,57 +1,40 @@
 # CraftOS
 
-A buildroot-based Linux OS with a native Rust package manager, software
-store, and SDK. Everything user-facing — apps, tools, and OS components —
-distributes through one system: **mpkg**.
+A hobby operating system built on **Buildroot Linux**, with an **all-Rust userland, package manager, SDK, and desktop environment**.
 
-## Components
+> **Name note:** the desktop environment is called **Rusty** — an all-Rust DE inspired by *Satisfactory*'s industrial factory UI. See `docs/DESKTOP.md`.
 
-| Repo | What | Status |
-|---|---|---|
-| `craftos` (this repo) | Vision, architecture, specs, coordination | active |
-| `mpkg` | Rust package manager: install/update/rollback, channels, transactions | not started |
-| `myos-build` | Buildroot fork: config, patches, package→`.mpk` packaging CI | not started |
-| `myos-sdk` | Cross-compile toolchain + `mpkg-sdk` wrapper | not started |
-| `myos-desktop` | wlroots compositor, shell, panel, store GUI | not started |
-| `myos-updated` | Update-check/apply daemon with reboot-required flow | not started |
-| `myos-installer` | Disk partitioning + package-seeded install (optional A/B profile) | not started |
+## Vision
 
-## Quick architecture
+CraftOS is a clean-room OS experience on top of Buildroot: everything above the kernel is Rust, updates are transactional, and the desktop looks and feels like the control room of a Satisfactory factory — dark gunmetal panels, amber accents, and the machine-as-metaphor everywhere.
 
-```
-+--------------------------------------------------+   
-| Applications      (mpkg packages: GUI + CLI)     |   App layer
-+--------------------------------------------------+   
-| Desktop           (myos-desktop: wlroots, shell, |   GUI
-|                    panel, app store)              |   
-+--------------------------------------------------+
-| System services   (mpkg-core, myos-updated,       |   Services
-|                    session mgmt, network)         |   
-+--------------------------------------------------+
-| OS core           (kernel, glibc, systemd,       |   Base
-|                    drivers) — from myos-build      |   
-+--------------------------------------------------+
-| Build & dist      (Buildroot CI → .mpk set →     |   Pipeline
-|                    mpkg repo: stable/testing)      |   
-+--------------------------------------------------+
-```
+- **One package manager:** `mpkg` (Rust) — local `.mpk` packages, `pkg.toml` manifests, signed repos, transactions with rollback.
+- **One SDK:** Rust toolchain + sysroot export, `mpkg-sdk new/build/package/deploy/run`.
+- **One desktop:** Rusty — Rust shell on Wayland (iced/wgpu), apps use shared Rusty widget templates.
+- **Package-based updates** with an **optional A/B slot mode** for appliance/edge installs.
 
-Key decisions: one package manager for OS + apps; package-based updates
-(linux-distro style, transactions + rollback); A/B slots as an optional
-hardening profile for headless/edge targets; Rust for all first-party
-userland; wlroots/Wayland desktop.
+## Architecture
 
-## Docs
+See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full layered architecture, data flows, and trade-offs.
 
-- [Architecture](docs/ARCHITECTURE.md) — layers, principles, trade-offs
-- [Roadmap](docs/ROADMAP.md) — phases 0–5 with exit criteria
-- [mpkg spec](docs/MPKG.md) — package format, transactions, channels
-- [SDK spec](docs/SDK.md) — toolchain, `mpkg-sdk` workflow
-- [Desktop spec](docs/DESKTOP.md) — Wayland stack, app compatibility
-- [Update system](docs/UPDATES.md) — package-based update flow, channels, CI gating
-- [A/B updates](docs/AB_UPDATES.md) — optional slot-based fallback layer
-- [Installer spec](docs/INSTALLER.md) — disk layout, install flow, A/B profile
+## Documentation
+
+| Doc | Contents |
+|---|---|
+| [ROADMAP.md](docs/ROADMAP.md) | Phases 0–5, milestones, exit criteria |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layered architecture, data flows, design decisions |
+| [MPKG.md](docs/MPKG.md) | Package manager: format, repos, transactions, SDK integration |
+| [SDK.md](docs/SDK.md) | OS SDK: toolchain, scaffolding, app lifecycle |
+| [DESKTOP.md](docs/DESKTOP.md) | **Rusty** DE: Satisfactory-inspired design language, crates, milestones |
+| [UPDATES.md](docs/UPDATES.md) | Update flow, `myos-updated`, CI gating |
+| [AB_UPDATES.md](docs/AB_UPDATES.md) | Optional A/B slot mode on top of the package model |
+| [INSTALLER.md](docs/INSTALLER.md) | ISO, disk layout, package seeding, first boot |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Repo layout, conventions, how to help |
 
 ## Status
 
-Phase 0 — repo and documentation setup.
+Phase 0 — build foundation. `myos-build` scaffolding and `mpkg-core` crate are the first deliverables.
+
+## License
+
+TBD — see CONTRIBUTING.md.
